@@ -16,6 +16,136 @@ const connection = mysql.createConnection({
   database: 'employeeTrackDB',
 });
 
+const runApp = () => {
+    inquirer
+      .prompt({
+        name: 'decisions',
+        type: 'rawlist',
+        message: 'What would you like to do?',
+        choices: [
+          'View All Employees',
+          'View All Employees By Department',
+          'Add Department',
+          'Add Role',
+          'Add Employee',
+          'Update Employee Role',
+          'Exit'
+        ],
+      })
+      .then((answer) => {
+        switch (answer.action) {
+          case 'View All Employees':
+            viewEmployees();
+            break;
+  
+          case 'View All Employees By Department':
+            viewByDepartment();
+            break;
+  
+          case 'Add Department':
+            addDepartment();
+            break;
+  
+          case 'Add Role':
+            addRole();
+            break;
+  
+          case 'Add Employee':
+            addEmployee();
+            break;
+
+          case 'Update Employee Role':
+            updateEmployeeRole();
+            break;
+          
+            default: 
+            console.log('Exiting..')
+              break;
+        }
+      });
+};
+
+
+// Brings up entire Employee table
+const viewEmployees = () => {
 
 
 
+
+
+
+
+};
+
+
+// Focuses on Department, brings up all employees with the department they work in
+const viewByDepartment = () => {
+
+
+
+
+
+
+
+};
+
+
+// Add a a new department for the company
+const addDepartment = () => {
+
+
+
+
+
+
+
+};
+
+
+
+// Add a new role for an employee in a department
+const addRole = () => {
+
+
+
+
+
+
+
+};
+
+
+// Add a new employee to the system - first name/last name etc.
+const addEmployee = () => {
+
+
+
+
+
+
+
+};
+
+
+// Employee has a new title/job at the company, needs his Role updated
+const updateEmployeeRole = () => {
+
+
+
+
+
+
+
+};
+
+
+
+
+
+
+
+
+connection.connect((err) => {
+  if (err) throw err;
+  console.log(`connected as ${connection.threadId}`);
+});
