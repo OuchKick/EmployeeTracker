@@ -33,7 +33,8 @@ const runApp = () => {
         ],
       })
       .then((answer) => {
-        switch (answer.action) {
+        console.log(answer);
+        switch (answer.decisions) {
           case 'View All Employees':
             viewEmployees();
             break;
@@ -62,6 +63,8 @@ const runApp = () => {
             console.log('Exiting..');
             connection.end();
               break;
+            
+            
         }
       });
 };
