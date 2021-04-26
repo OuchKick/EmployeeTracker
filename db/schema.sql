@@ -12,7 +12,7 @@ CREATE TABLE department (
 CREATE TABLE role (
       id INT NOT NULL AUTO_INCREMENT,
       title VARCHAR(30) NULL,
-      salary DECIMAL,
+      salary DECIMAL(10,2),
       department_id INT,
       PRIMARY KEY (id),
       FOREIGN KEY (department_id) REFERENCES department(id)
@@ -31,6 +31,4 @@ CREATE TABLE employee (
     );
 
 
-SELECT * FROM department;
-SELECT * FROM role;
-SELECT * FROM employee;
+SELECT * FROM employeeTrackDB;

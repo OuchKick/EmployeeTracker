@@ -12,7 +12,7 @@ const connection = mysql.createConnection({
   user: 'root',
 
   // Be sure to update with your own MySQL password!
-  password: '',
+  password: 'Lemonwedge992',
   database: 'employeeTrackDB',
 });
 
@@ -58,47 +58,71 @@ const runApp = () => {
             updateEmployeeRole();
             break;
           
-            default: 
-            console.log('Exiting..')
+            case 'Exit':
+            console.log('Exiting..');
+            connection.end();
               break;
         }
       });
 };
 
 
-// Brings up entire Employee table
+// Brings up EVERYTHING
 const viewEmployees = () => {
-
-
-
-
-
-
-
+  console.log('=================== EMPLOYEES ===================');
+  const query = `SELECT employee.id, CONCAT(employee.first_name, " ", employee.last_name) AS Employee_Name, role.title AS Title, role.salary AS Salary, department.name AS Department
+  from employee
+  left join role 
+  on employee.role_id = role.id
+  left join department 
+  on role.department_id = department.id
+  order by employee.id;`
+  connection.query(query, (err, data) => {
+    if (err) throw err
+    console.table(data);
+});
 };
 
 
-// Focuses on Department, brings up all employees with the department they work in
+//brings up all departments
 const viewByDepartment = () => {
+  const query = `SELECT * FROM department`
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    const display = res.map(department => {
+      return {
+        name: department.name,
+        value: department.id
 
-
-
-
-
-
-
+      }
+    });
+    display.push("X");
+    console.table(res);
+  });
 };
 
 
-// Add a a new department for the company
+// Add a  new department for the company
 const addDepartment = () => {
-
-
-
-
-
-
-
+  inquirer  
+    .prompt([
+      {
+        name: 'department',
+        type: 'input',
+        message: 'Enter the name of the department you would like to add:'
+      }
+    ]).then((answer => {
+      const query = `INSERT INTO department (name) VALUES ('${answer.department}')`
+      connection.query(query, (err, res) => {
+        if (err) throw err;
+        connection.query("SELECT * FROM employeeTrackDB.department;", (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          console.log(`${answer.department} has been added!`);
+          return runApp();
+        });
+      });
+    }));
 };
 
 
@@ -148,4 +172,6 @@ const updateEmployeeRole = () => {
 connection.connect((err) => {
   if (err) throw err;
   console.log(`connected as ${connection.threadId}`);
+  runApp();
 });
+
