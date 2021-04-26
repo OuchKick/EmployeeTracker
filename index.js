@@ -24,7 +24,7 @@ const runApp = () => {
         message: 'What would you like to do?',
         choices: [
           'View All Employees',
-          'View All Employees By Department',
+          'View All Departments',
           'Add Department',
           'Add Role',
           'Add Employee',
@@ -39,7 +39,7 @@ const runApp = () => {
             viewEmployees();
             break;
   
-          case 'View All Employees By Department':
+          case 'View All Departments':
             viewByDepartment();
             break;
   
@@ -94,13 +94,14 @@ const viewByDepartment = () => {
     if (err) throw err;
     const display = res.map(department => {
       return {
-        name: department.name,
-        value: department.id
+        departments: department.name,
+        departmentID: department.id
 
       }
     });
-    display.push("X");
-    console.table(res);
+    
+    console.table(display);
+    return runApp();
   });
 };
 
@@ -132,6 +133,51 @@ const addDepartment = () => {
 
 // Add a new role for an employee in a department
 const addRole = () => {
+    connection.query("SELECT * FROM department", (err, res) => {
+      if (err) throw err;
+      const display = res.map((department) => {
+        return {
+          name: department.name,
+          value: department.id
+        }
+
+      })
+  inquirer  
+    .prompt([
+      {
+          name: 'role',
+          type: 'input',
+          message: 'Enter the name of the role you want to add:'
+      },
+      {
+        name: 'salary',
+        type: 'input',
+        message: 'How much does this role pay?'
+      },
+      {
+        name: 'department',
+        type: 'list',
+        message: 'Which department does this role fall into?',
+        choices: display
+      },
+
+    ]).then((answer => {
+      const query = `INSERT INTO role (title, salary, department_id) VALUES ('${answer.role}', '${answer.salary}', '${answer.department}')`
+      connection.query(query, (err, res) => {
+        if (err) throw err;
+        connection.query("SELECT * FROM employeeTrackDB.role;", (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          console.log(`${answer.role} has been added!`);
+          return runApp();
+        });
+      });
+    }));
+  })
+  };
+
+    
+  
 
 
 
@@ -139,18 +185,51 @@ const addRole = () => {
 
 
 
-};
+
 
 
 // Add a new employee to the system - first name/last name etc.
 const addEmployee = () => {
+  connection.query("SELECT * FROM role", (err, res) => {
+    if (err) throw err;
+    const display = res.map((role) => {
+      return {
+        name: role.title,
+        value: role.id
+      }
 
-
-
-
-
-
-
+    })
+inquirer  
+  .prompt([
+    {
+        name: 'first',
+        type: 'input',
+        message: 'Enter Employees first name:'
+    },
+    {
+      name: 'last',
+      type: 'input',
+      message: 'Enter Employees last name:'
+    },
+    {
+      name: 'roleChoice',
+      type: 'list',
+      message: 'What role does this Employee fill?',
+      choices: display
+    },
+  ]).then((answer => {
+    const query = `INSERT INTO employee (first_name, last_name, role_id) VALUES ('${answer.first}', '${answer.last}', '${answer.roleChoice})`
+    connection.query(query, (err, res) => {
+      if (err) throw err;
+      connection.query("SELECT * FROM employeeTrackDB.employee;", (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        console.log(`${answer.first} ${answer.last} has been added!`);
+        return runApp();
+      });
+    });
+  }));
+})
 };
 
 
@@ -177,4 +256,3 @@ connection.connect((err) => {
   console.log(`connected as ${connection.threadId}`);
   runApp();
 });
-
