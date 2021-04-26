@@ -137,8 +137,8 @@ const addRole = () => {
       if (err) throw err;
       const display = res.map((department) => {
         return {
-          name: department.name,
-          value: department.id
+          department: department.name,
+          departmentID: department.id
         }
 
       })
@@ -194,8 +194,8 @@ const addEmployee = () => {
     if (err) throw err;
     const display = res.map((role) => {
       return {
-        name: role.title,
-        value: role.id
+        role: role.title,
+        roleID: role.id
       }
 
     })
