@@ -12,61 +12,61 @@ const connection = mysql.createConnection({
   user: 'root',
 
   // Be sure to update with your own MySQL password!
-  password: '',
+  password: 'Lemonwedge992',
   database: 'employeeTrackDB',
 });
 
 const runApp = () => {
-    inquirer
-      .prompt({
-        name: 'decisions',
-        type: 'rawlist',
-        message: 'What would you like to do?',
-        choices: [
-          'View All Employees',
-          'View All Departments',
-          'Add Department',
-          'Add Role',
-          'Add Employee',
-          'Update Employee Role',
-          'Exit'
-        ],
-      })
-      .then((answer) => {
-        console.log(answer);
-        switch (answer.decisions) {
-          case 'View All Employees':
-            viewEmployees();
-            break;
-  
-          case 'View All Departments':
-            viewByDepartment();
-            break;
-  
-          case 'Add Department':
-            addDepartment();
-            break;
-  
-          case 'Add Role':
-            addRole();
-            break;
-  
-          case 'Add Employee':
-            addEmployee();
-            break;
+  inquirer
+    .prompt({
+      name: 'decisions',
+      type: 'rawlist',
+      message: 'What would you like to do?',
+      choices: [
+        'View All Employees',
+        'View All Departments',
+        'Add Department',
+        'Add Role',
+        'Add Employee',
+        'Update Employee Role',
+        'Exit'
+      ],
+    })
+    .then((answer) => {
+      console.log(answer);
+      switch (answer.decisions) {
+        case 'View All Employees':
+          viewEmployees();
+          break;
 
-          case 'Update Employee Role':
-            updateEmployeeRole();
-            break;
-          
-            case 'Exit':
-            console.log('Exiting..');
-            connection.end();
-              break;
-            
-            
-        }
-      });
+        case 'View All Departments':
+          viewByDepartment();
+          break;
+
+        case 'Add Department':
+          addDepartment();
+          break;
+
+        case 'Add Role':
+          addRole();
+          break;
+
+        case 'Add Employee':
+          addEmployee();
+          break;
+
+        case 'Update Employee Role':
+          updateEmployeeRole();
+          break;
+
+        case 'Exit':
+          console.log('Exiting..');
+          connection.end();
+          break;
+
+
+      }
+    });
 };
 
 
@@ -81,9 +81,10 @@ const viewEmployees = () => {
   on role.department_id = department.id
   order by employee.id;`
   connection.query(query, (err, data) => {
-    if (err) throw err
+    if (err) throw (err)
     console.table(data);
-});
+    return runApp();
+  });
 };
 
 
@@ -91,7 +92,7 @@ const viewEmployees = () => {
 const viewByDepartment = () => {
   const query = `SELECT * FROM department`
   connection.query(query, (err, res) => {
-    if (err) throw err;
+    if (err) throw (err);
     const display = res.map(department => {
       return {
         departments: department.name,
@@ -99,7 +100,7 @@ const viewByDepartment = () => {
 
       }
     });
-    
+
     console.table(display);
     return runApp();
   });
@@ -108,7 +109,7 @@ const viewByDepartment = () => {
 
 // Add a  new department for the company
 const addDepartment = () => {
-  inquirer  
+  inquirer
     .prompt([
       {
         name: 'department',
@@ -118,164 +119,162 @@ const addDepartment = () => {
     ]).then((answer => {
       const query = `INSERT INTO department (name) VALUES ('${answer.department}')`
       connection.query(query, (err, res) => {
-        if (err) throw err;
+        if (err) throw (err);
         connection.query("SELECT * FROM employeeTrackDB.department;", (err, res) => {
-          if (err) throw err;
+          if (err) throw (err);
           console.table(res);
           console.log(`${answer.department} has been added!`);
           return runApp();
-        });
       });
-    }));
+    });
+  }));
 };
 
 
 
 // Add a new role for an employee in a department
-const addRole = () => {
-    connection.query("SELECT * FROM department", (err, res) => {
-      if (err) throw err;
-      const display = res.map((department) => {
-        return {
-          department: department.name,
-          departmentID: department.id
-        }
-
-      })
-  inquirer  
-    .prompt([
-      {
+addRole = () => {
+  connection.query('SELECT * FROM department', (err, res) => {
+    if (err) throw (err);
+    const departments = res.map((department) => {
+      return {
+        name: department.name,
+        value: department.id
+      }
+    })
+    inquirer
+      .prompt([
+        {
           name: 'role',
           type: 'input',
-          message: 'Enter the name of the role you want to add:'
-      },
-      {
-        name: 'salary',
-        type: 'input',
-        message: 'How much does this role pay?'
-      },
-      {
-        name: 'department',
-        type: 'list',
-        message: 'Which department does this role fall into?',
-        choices: display
-      },
+          message: "Enter the name of the role:"
+        },
+        {
+          name: 'salary',
+          type: 'input',
+          message: "What is the salary?"
+        },
+        {
+          name: 'department',
+          type: 'list',
+          message: "Which department should this role be in?",
+          choices: departments
+        },
+      ]).then((answer => {
 
-    ]).then((answer => {
-      const query = `INSERT INTO role (title, salary, department_id) VALUES ('${answer.role}', '${answer.salary}', '${answer.department}')`
-      connection.query(query, (err, res) => {
-        if (err) throw err;
-        connection.query("SELECT * FROM employeeTrackDB.role;", (err, res) => {
-          if (err) throw err;
-          console.table(res);
-          console.log(`${answer.role} has been added!`);
-          return runApp();
+        const query = `INSERT INTO role (title, salary, department_id) VALUES ('${answer.role}', '${answer.salary}', '${answer.department}')`
+        connection.query(query, (err, res) => {
+          if (err) throw (err);
+          connection.query("SELECT * FROM employeeTrackDB.role;", (err, res) => {
+            if (err) throw (err);
+            console.table(res)
+            console.log(`${answer.role} has been added!`)
+            return runApp();
         });
       });
     }));
-  })
-  };
+  });
+};
 
 // Add a new employee to the system - first name/last name etc.
 const addEmployee = () => {
-  connection.query("SELECT * FROM role", (err, res) => {
-    if (err) throw err;
-    const display = res.map((role) => {
+  connection.query('SELECT * FROM role', (err, res) => {
+    if (err) throw (err);
+    const displayRoleC = res.map((role) => {
       return {
-        role: role.title,
-        roleID: role.id
+        name: role.title,
+        value: role.id
       }
-
     })
-inquirer  
-  .prompt([
-    {
-        name: 'first',
-        type: 'input',
-        message: 'Enter Employees first name:'
-    },
-    {
-      name: 'last',
-      type: 'input',
-      message: 'Enter Employees last name:'
-    },
-    {
-      name: 'roleChoice',
-      type: 'list',
-      message: 'What role does this Employee fill?',
-      choices: display
-    },
-  ]).then((answer => {
-    const query = `INSERT INTO employee (first_name, last_name, role_id) VALUES ('${answer.first}', '${answer.last}', '${answer.roleChoice})`
-    connection.query(query, (err, res) => {
-      if (err) throw err;
-      connection.query("SELECT * FROM employeeTrackDB.employee;", (err, res) => {
-        if (err) throw err;
-        console.table(res);
-        console.log(`${answer.first} ${answer.last} has been added!`);
-        return runApp();
-      });
-    });
-  }));
-})
+    inquirer
+      .prompt([
+        {
+          name: 'first',
+          type: 'input',
+          message: "Enter Employees first name:"
+        },
+        {
+          name: 'last',
+          type: 'input',
+          message: "Enter Employees last name:"
+        },
+        {
+          name: 'role',
+          type: 'list',
+          message: "Which department should this role be in?",
+          choices: displayRoleC
+        },
+      ]).then((answer => {
+
+        const query = `INSERT INTO employee (first_name, last_name, role_id) VALUES ('${answer.first}', '${answer.last}', '${answer.role}')`
+        connection.query(query, (err, res) => {
+          if (err) throw (err);
+          connection.query("SELECT * FROM employeeTrackDB.employee;", (err, res) => {
+            if (err) throw (err);
+            console.table(res)
+            console.log(`${answer.first} ${answer.last} has been added!`)
+            return runApp();
+          });
+       });
+    }));
+  });
 };
 
 
 // Employee has a new title/job at the company, needs his Role updated
 const updateEmployeeRole = () => {
-  
-  connection.query("SELECT * FROM employee", (err, res) => {
-    if (err) throw err;
-    const displayEmp = res.map((employee) => {
+  connection.query('SELECT * FROM employee', (err, res) => {
+    if (err) throw (err);
+    const employees = res.map((employee) => {
       return {
-        firstLast: `${employee.first_name} ${employee.last_name}`,
-        employeeID: employee.id
+        name: `${employee.first_name} ${employee.last_name}`,
+        value: employee.id
       }
-    });
-    connection.query("SELECT * FROM role", (err, res) => {
-      if (err) throw err;
-      const display = res.map((role) => {
+    })
+    connection.query('SELECT * FROM role', (err, res) => {
+      if (err) throw (err);
+      const roles = res.map((role) => {
         return {
-          role: role.title,
-          roleID: role.id,
+          name: role.title,
+          value: role.id
         }
-      });
-inquirer  
-  .prompt([
-    {
-        name: 'employee',
-        type: 'list',
-        message: 'Which employee needs to have their role updated?',
-        choices: displayEmp
-    },
-    {
-      name: 'role',
-      type: 'list',
-      message: 'Select a new role:',
-      choices: display
-    }
-  ]).then((answer => {
-    const query = `
-    UPDATE employee
-    SET role_id = ${answer.role}
-    WHERE id = ${answer.employee};`
-    connection.query(query, (err, res) => {
-      if (err) throw err;
-      connection.query("SELECT * FROM employeeTrackDB.employee;", (err, res) => {
-        if (err) throw err;
-        console.table(res);
-        console.log('Role has been updated!');
-        return runApp();
-      });
+      })
+      inquirer
+        .prompt([
+          {
+            name: 'employee',
+            type: 'list',
+            message: "Which Employee is changing roles?",
+            choices: employees
+          },
+          {
+            name: 'role',
+            type: 'list',
+            message: "What is their new role?",
+            choices: roles
+          },
+        ]).then((answer => {
+          const query = `
+              UPDATE employee
+              SET role_id = ${answer.role}
+              WHERE id=${answer.employee};`
+          connection.query(query, (err, res) => {
+            if (err) throw err
+            connection.query("SELECT * FROM employeeTrackDB.employee;", (err, res) => {
+              if (err) throw (err);
+              console.table(res)
+              console.log(`Role has been updated!`)
+              return runApp();
+          });
+        });
+      }));
     });
-  }));
-});
-});
+  });
 };
 
 
 connection.connect((err) => {
-  if (err) throw err;
+  if (err) throw (err);
   console.log(`connected as ${connection.threadId}`);
   runApp();
 });
