@@ -12,7 +12,7 @@ const connection = mysql.createConnection({
   user: 'root',
 
   // Be sure to update with your own MySQL password!
-  password: 'Lemonwedge992',
+  password: '',
   database: 'employeeTrackDB',
 });
 
@@ -176,18 +176,6 @@ const addRole = () => {
   })
   };
 
-    
-  
-
-
-
-
-
-
-
-
-
-
 // Add a new employee to the system - first name/last name etc.
 const addEmployee = () => {
   connection.query("SELECT * FROM role", (err, res) => {
@@ -235,20 +223,55 @@ inquirer
 
 // Employee has a new title/job at the company, needs his Role updated
 const updateEmployeeRole = () => {
-
-
-
-
-
-
-
+  
+  connection.query("SELECT * FROM employee", (err, res) => {
+    if (err) throw err;
+    const displayEmp = res.map((employee) => {
+      return {
+        firstLast: `${employee.first_name} ${employee.last_name}`,
+        employeeID: employee.id
+      }
+    });
+    connection.query("SELECT * FROM role", (err, res) => {
+      if (err) throw err;
+      const display = res.map((role) => {
+        return {
+          role: role.title,
+          roleID: role.id,
+        }
+      });
+inquirer  
+  .prompt([
+    {
+        name: 'employee',
+        type: 'list',
+        message: 'Which employee needs to have their role updated?',
+        choices: displayEmp
+    },
+    {
+      name: 'role',
+      type: 'list',
+      message: 'Select a new role:',
+      choices: display
+    }
+  ]).then((answer => {
+    const query = `
+    UPDATE employee
+    SET role_id = ${answer.role}
+    WHERE id = ${answer.employee};`
+    connection.query(query, (err, res) => {
+      if (err) throw err;
+      connection.query("SELECT * FROM employeeTrackDB.employee;", (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        console.log('Role has been updated!');
+        return runApp();
+      });
+    });
+  }));
+});
+});
 };
-
-
-
-
-
-
 
 
 connection.connect((err) => {
